@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f6fa" />
+    <meta
+      name="description"
+      content="Günlük işlerini kolayca düzenle ve takibini yap."
+    />
+    <title>Osman Todo</title>
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="Osman Todo ana sayfa">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path
+                d="m5 12.5 4.25 4.25L19 7"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+          <span>Osman <strong>Todo</strong></span>
+        </a>
+        <span class="today-label" id="today-label"></span>
+      </header>
+
+      <section class="welcome" aria-labelledby="welcome-title">
+        <div class="welcome-copy">
+          <p class="eyebrow">BUGÜNÜN PLANI</p>
+          <h1 id="welcome-title">Merhaba! <span>✨</span></h1>
+          <p class="welcome-subtitle">Küçük adımlar, büyük işler.</p>
+        </div>
+        <div class="progress-card" aria-live="polite">
+          <div class="progress-copy">
+            <span class="progress-title">Günlük ilerleme</span>
+            <span class="progress-count" id="progress-count">0 / 0</span>
+          </div>
+          <div
+            class="progress-track"
+            id="progress-track"
+            role="progressbar"
+            aria-label="Tamamlanan görevler"
+            aria-valuemin="0"
+            aria-valuemax="0"
+            aria-valuenow="0"
+          >
+            <span class="progress-fill" id="progress-fill"></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="task-panel" aria-labelledby="tasks-heading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">LİSTEN</p>
+            <h2 id="tasks-heading">Görevlerin</h2>
+          </div>
+          <span class="task-total" id="task-total">0 görev</span>
+        </div>
+
+        <form class="add-form" id="task-form">
+          <label class="sr-only" for="task-input">Yeni görev</label>
+          <span class="input-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 5v14m-7-7h14"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </span>
+          <input
+            id="task-input"
+            name="task"
+            type="text"
+            placeholder="Aklındaki işi buraya yaz..."
+            maxlength="160"
+            autocomplete="off"
+            required
+          />
+          <button class="add-button" type="submit">
+            <span>Görev ekle</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M5 12h14m-6-6 6 6-6 6"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+        </form>
+
+        <div class="list-toolbar">
+          <div class="filters" role="group" aria-label="Görevleri filtrele">
+            <button class="filter-button is-active" type="button" data-filter="all" aria-pressed="true">Tümü</button>
+            <button class="filter-button" type="button" data-filter="active" aria-pressed="false">Devam eden</button>
+            <button class="filter-button" type="button" data-filter="completed" aria-pressed="false">Tamamlanan</button>
+          </div>
+          <span class="remaining-count" id="remaining-count"></span>
+        </div>
+
+        <ul class="task-list" id="task-list" aria-live="polite"></ul>
+        <div class="empty-state" id="empty-state">
+          <span class="empty-illustration" aria-hidden="true">📝</span>
+          <h3 id="empty-title">Listen tertemiz!</h3>
+          <p id="empty-description">Başlamak için yukarıdan yeni bir görev ekle.</p>
+        </div>
+      </section>
+
+      <footer class="app-footer">
+        <span>Her şey sırayla, sen yaparsın. 💪</span>
+        <span class="storage-note">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M7 10V7a5 5 0 0 1 10 0v3m-11 0h12v10H6V10Z"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          Görevlerin bu cihazda saklanır
+        </span>
+      </footer>
+      <p class="sr-only" id="status-message" role="status" aria-live="polite"></p>
+    </main>
+  </body>
+</html>
