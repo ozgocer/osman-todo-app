@@ -1,11 +1,19 @@
 const STORAGE_KEY = "osman-todo-tasks";
+const THEME_STORAGE_KEY = "osman-todo-theme";
+const PRIORITIES = ["Düşük", "Orta", "Yüksek"];
+const CATEGORIES = ["İş", "Kişisel", "Eğitim"];
 const CHECK_ICON =
   '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12.5 4.25 4.25L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const TRASH_ICON =
   '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16m-10 4v6m4-6v6M5 7l1 13h12l1-13M9 7V4h6v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const SUN_ICON = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+const MOON_ICON = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20.2 15.1A8.5 8.5 0 0 1 8.9 3.8 8.5 8.5 0 1 0 20.2 15.1Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 const taskForm = document.querySelector("#task-form");
 const taskInput = document.querySelector("#task-input");
+const taskDueDate = document.querySelector("#task-due-date");
+const taskPriority = document.querySelector("#task-priority");
+const taskCategory = document.querySelector("#task-category");
 const taskList = document.querySelector("#task-list");
 const emptyState = document.querySelector("#empty-state");
 const emptyTitle = document.querySelector("#empty-title");
@@ -18,9 +26,12 @@ const progressFill = document.querySelector("#progress-fill");
 const statusMessage = document.querySelector("#status-message");
 const todayLabel = document.querySelector("#today-label");
 const filterButtons = document.querySelectorAll(".filter-button");
+const themeToggle = document.querySelector("#theme-toggle");
+const themeColor = document.querySelector('meta[name="theme-color"]');
 
 let tasks = loadTasks();
 let activeFilter = "all";
+let currentTheme = loadTheme();
 
 todayLabel.textContent = new Intl.DateTimeFormat("tr-TR", {
   weekday: "long",
@@ -28,6 +39,7 @@ todayLabel.textContent = new Intl.DateTimeFormat("tr-TR", {
   month: "long",
 }).format(new Date());
 
+applyTheme();
 renderTasks();
 
 taskForm.addEventListener("submit", (event) => {
@@ -45,12 +57,29 @@ taskForm.addEventListener("submit", (event) => {
     title,
     completed: false,
     createdAt: new Date().toISOString(),
+    dueDate: taskDueDate.value,
+    priority: taskPriority.value,
+    category: taskCategory.value,
   });
   activeFilter = "all";
   updateActiveFilter();
   taskInput.value = "";
+  taskDueDate.value = "";
+  taskPriority.value = "Orta";
+  taskCategory.value = "Kişisel";
   persistAndRender();
   taskInput.focus();
+});
+
+themeToggle.addEventListener("click", () => {
+  currentTheme = currentTheme === "dark" ? "light" : "dark";
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, currentTheme);
+  } catch (error) {
+    console.error("Tema tercihi kaydedilemedi:", error);
+    announce("Tema tercihi bu cihazda kaydedilemedi.");
+  }
+  applyTheme();
 });
 
 filterButtons.forEach((button) => {
@@ -101,12 +130,35 @@ function loadTasks() {
       throw new Error("Görev verileri beklenen biçimde değil.");
     }
 
-    return parsedTasks;
+    return parsedTasks.map((task) => ({
+      ...task,
+      dueDate: typeof task.dueDate === "string" ? task.dueDate : "",
+      priority: PRIORITIES.includes(task.priority) ? task.priority : "Orta",
+      category: CATEGORIES.includes(task.category) ? task.category : "Kişisel",
+    }));
   } catch (error) {
     console.error("Görevler yüklenemedi:", error);
     announce("Kaydedilmiş görevler yüklenemedi. Yeni görev ekleyebilirsin.");
     return [];
   }
+}
+
+function loadTheme() {
+  try {
+    return localStorage.getItem(THEME_STORAGE_KEY) === "dark" ? "dark" : "light";
+  } catch (error) {
+    console.error("Tema tercihi yüklenemedi:", error);
+    return "light";
+  }
+}
+
+function applyTheme() {
+  const isDark = currentTheme === "dark";
+  document.documentElement.dataset.theme = currentTheme;
+  themeToggle.innerHTML = isDark ? SUN_ICON : MOON_ICON;
+  themeToggle.setAttribute("aria-label", isDark ? "Açık temayı aç" : "Koyu temayı aç");
+  themeToggle.setAttribute("aria-pressed", String(isDark));
+  themeColor.setAttribute("content", isDark ? "#171725" : "#f5f6fa");
 }
 
 function createTaskId() {
@@ -167,6 +219,7 @@ function renderTasks() {
 function createTaskElement(task) {
   const item = document.createElement("li");
   item.className = `task-item${task.completed ? " is-completed" : ""}`;
+  if (isOverdue(task)) item.classList.add("is-overdue");
   item.dataset.taskId = task.id;
 
   const toggleButton = document.createElement("button");
@@ -189,8 +242,28 @@ function createTaskElement(task) {
   const date = document.createElement("span");
   date.className = "task-date";
   date.textContent = formatTaskDate(task.createdAt);
-  title.append(date);
-  content.append(title);
+  content.append(title, date);
+
+  const metadata = document.createElement("div");
+  metadata.className = "task-metadata";
+
+  const priority = document.createElement("span");
+  priority.className = `task-badge priority-${priorityClass(task.priority)}`;
+  priority.textContent = task.priority;
+
+  const category = document.createElement("span");
+  category.className = "task-badge category-badge";
+  category.textContent = task.category;
+  metadata.append(priority, category);
+
+  if (task.dueDate) {
+    const dueDate = document.createElement("span");
+    dueDate.className = "task-badge due-date";
+    if (isOverdue(task)) dueDate.classList.add("is-overdue");
+    dueDate.textContent = `Son tarih: ${formatDueDate(task.dueDate)}`;
+    metadata.append(dueDate);
+  }
+  content.append(metadata);
 
   const deleteButton = document.createElement("button");
   deleteButton.className = "delete-button";
@@ -201,6 +274,34 @@ function createTaskElement(task) {
 
   item.append(toggleButton, content, deleteButton);
   return item;
+}
+
+function priorityClass(priority) {
+  if (priority === "Düşük") return "low";
+  if (priority === "Yüksek") return "high";
+  return "medium";
+}
+
+function isOverdue(task) {
+  return Boolean(task.dueDate && !task.completed && task.dueDate < getLocalDateString());
+}
+
+function getLocalDateString(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatDueDate(value) {
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("tr-TR", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(date);
 }
 
 function formatTaskDate(value) {

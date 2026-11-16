@@ -32,6 +32,13 @@
           <span>Osman <strong>Todo</strong></span>
         </a>
         <span class="today-label" id="today-label"></span>
+        <button
+          class="theme-toggle"
+          id="theme-toggle"
+          type="button"
+          aria-label="Koyu temayı aç"
+          aria-pressed="false"
+        ></button>
       </header>
 
       <section class="welcome" aria-labelledby="welcome-title">
@@ -69,38 +76,62 @@
         </div>
 
         <form class="add-form" id="task-form">
-          <label class="sr-only" for="task-input">Yeni görev</label>
-          <span class="input-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path
-                d="M12 5v14m-7-7h14"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-              />
-            </svg>
-          </span>
-          <input
-            id="task-input"
-            name="task"
-            type="text"
-            placeholder="Aklındaki işi buraya yaz..."
-            maxlength="160"
-            autocomplete="off"
-            required
-          />
-          <button class="add-button" type="submit">
-            <span>Görev ekle</span>
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="M5 12h14m-6-6 6 6-6 6"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
+          <div class="form-main-row">
+            <label class="sr-only" for="task-input">Yeni görev</label>
+            <span class="input-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 5v14m-7-7h14"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </span>
+            <input
+              id="task-input"
+              name="task"
+              type="text"
+              placeholder="Aklındaki işi buraya yaz..."
+              maxlength="160"
+              autocomplete="off"
+              required
+            />
+            <button class="add-button" type="submit">
+              <span>Görev ekle</span>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M5 12h14m-6-6 6 6-6 6"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
+          <div class="form-options">
+            <label class="form-option">
+              <span>Son tarih</span>
+              <input id="task-due-date" name="dueDate" type="date" />
+            </label>
+            <label class="form-option">
+              <span>Öncelik</span>
+              <select id="task-priority" name="priority">
+                <option value="Orta">Orta</option>
+                <option value="Düşük">Düşük</option>
+                <option value="Yüksek">Yüksek</option>
+              </select>
+            </label>
+            <label class="form-option">
+              <span>Kategori</span>
+              <select id="task-category" name="category">
+                <option value="Kişisel">Kişisel</option>
+                <option value="İş">İş</option>
+                <option value="Eğitim">Eğitim</option>
+              </select>
+            </label>
+          </div>
         </form>
 
         <div class="list-toolbar">

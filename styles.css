@@ -15,7 +15,36 @@
   --muted: #89899b;
   --line: #eeeef4;
   --surface: #fff;
+  --page: #f5f6fa;
+  --soft-surface: #fbfbfd;
+  --task-surface: #fff;
+  --control-surface: #f5f5f9;
+  --task-border: #f0f0f5;
+  --control-border: #e8e8f0;
+  --text-primary: #444457;
+  --text-secondary: #818194;
+  --date-text: #a3a3b0;
   --shadow: 0 12px 40px rgb(34 31 71 / 6%);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  color: #efeff8;
+  background: #171725;
+  --ink: #efeff8;
+  --muted: #aaaabd;
+  --line: #343447;
+  --surface: #222233;
+  --page: #171725;
+  --soft-surface: #29293b;
+  --task-surface: #29293b;
+  --control-surface: #303044;
+  --task-border: #3a3a4f;
+  --control-border: #414157;
+  --text-primary: #e1e1ed;
+  --text-secondary: #b2b2c5;
+  --date-text: #aaaabd;
+  --shadow: 0 12px 40px rgb(0 0 0 / 22%);
 }
 
 * {
@@ -28,7 +57,13 @@ body {
   margin: 0;
   background:
     radial-gradient(ellipse at 82% 1%, rgb(222 219 255 / 54%), transparent 29rem),
-    #f5f6fa;
+    var(--page);
+}
+
+:root[data-theme="dark"] body {
+  background:
+    radial-gradient(ellipse at 82% 1%, rgb(108 99 232 / 12%), transparent 29rem),
+    var(--page);
 }
 
 button,
@@ -60,6 +95,25 @@ button {
 
 .topbar {
   min-height: 44px;
+  gap: 12px;
+}
+
+.theme-toggle {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--task-border);
+  border-radius: 12px;
+  color: var(--ink);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.theme-toggle svg {
+  width: 20px;
 }
 
 .brand {
@@ -92,6 +146,7 @@ button {
 }
 
 .today-label {
+  flex: 1;
   color: #77778b;
   font-size: 12px;
   font-weight: 600;
@@ -139,7 +194,7 @@ button {
   padding: 16px 18px;
   border: 1px solid rgb(108 99 232 / 8%);
   border-radius: 18px;
-  background: rgb(255 255 255 / 82%);
+  background: var(--surface);
   box-shadow: 0 8px 24px rgb(34 31 71 / 4%);
 }
 
@@ -149,7 +204,7 @@ button {
 }
 
 .progress-title {
-  color: #646477;
+  color: var(--text-secondary);
   font-weight: 600;
 }
 
@@ -162,7 +217,7 @@ button {
   height: 7px;
   overflow: hidden;
   border-radius: 99px;
-  background: #eeedfb;
+  background: rgb(108 99 232 / 16%);
 }
 
 .progress-fill {
@@ -205,15 +260,20 @@ button {
 }
 
 .add-form {
+  display: grid;
+  gap: 9px;
+  padding: 5px;
+  border: 1px solid var(--control-border);
+  border-radius: 15px;
+  background: var(--soft-surface);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.form-main-row {
   display: flex;
-  min-height: 54px;
+  min-height: 48px;
   align-items: center;
   gap: 8px;
-  padding: 5px;
-  border: 1px solid #e8e8f0;
-  border-radius: 15px;
-  background: #fbfbfd;
-  transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
 .add-form:focus-within {
@@ -233,7 +293,7 @@ button {
   width: 20px;
 }
 
-.add-form input {
+.form-main-row input {
   width: 100%;
   min-width: 0;
   height: 42px;
@@ -244,8 +304,48 @@ button {
   font-size: 13px;
 }
 
-.add-form input::placeholder {
+.form-main-row input::placeholder {
   color: #aaaab8;
+}
+
+.form-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  padding: 0 4px 4px;
+}
+
+.form-option:first-child {
+  grid-column: 1 / -1;
+}
+
+.form-option {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.form-option input,
+.form-option select {
+  width: 100%;
+  min-width: 0;
+  height: 36px;
+  padding: 0 7px;
+  border: 1px solid var(--control-border);
+  border-radius: 9px;
+  outline: 0;
+  color: var(--ink);
+  background: var(--surface);
+  font-size: 11px;
+}
+
+.form-option input:focus,
+.form-option select:focus {
+  border-color: #aaa5f5;
+  box-shadow: 0 0 0 2px rgb(108 99 232 / 10%);
 }
 
 .add-button {
@@ -288,7 +388,7 @@ button {
   gap: 3px;
   padding: 4px;
   border-radius: 12px;
-  background: #f5f5f9;
+  background: var(--control-surface);
 }
 
 .filter-button {
@@ -296,7 +396,7 @@ button {
   padding: 0 10px;
   border: 0;
   border-radius: 9px;
-  color: #818194;
+  color: var(--text-secondary);
   background: transparent;
   cursor: pointer;
   font-size: 11px;
@@ -306,7 +406,7 @@ button {
 
 .filter-button.is-active {
   color: var(--purple-dark);
-  background: #fff;
+  background: var(--surface);
   box-shadow: 0 2px 6px rgb(34 31 71 / 8%);
 }
 
@@ -330,9 +430,9 @@ button {
   align-items: center;
   gap: 12px;
   padding: 10px 10px 10px 13px;
-  border: 1px solid #f0f0f5;
+  border: 1px solid var(--task-border);
   border-radius: 14px;
-  background: #fff;
+  background: var(--task-surface);
   animation: task-enter 180ms ease both;
 }
 
@@ -346,7 +446,7 @@ button {
   border: 1.5px solid #d5d4e5;
   border-radius: 8px;
   color: transparent;
-  background: #fff;
+  background: var(--surface);
   cursor: pointer;
   transition: all 160ms ease;
 }
@@ -365,11 +465,16 @@ button {
   background: var(--purple);
 }
 
+.task-content {
+  min-width: 0;
+  flex: 1;
+}
+
 .task-text {
   min-width: 0;
   flex: 1;
   overflow-wrap: anywhere;
-  color: #444457;
+  color: var(--text-primary);
   font-size: 13px;
   line-height: 1.5;
   transition: color 160ms ease;
@@ -384,9 +489,62 @@ button {
 .task-date {
   display: block;
   margin-top: 3px;
-  color: #a3a3b0;
+  color: var(--date-text);
   font-size: 10px;
   text-decoration: none;
+}
+
+.task-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.task-badge {
+  display: inline-flex;
+  min-height: 22px;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.priority-low {
+  color: #237a4b;
+  background: #e6f6ec;
+}
+
+.priority-medium {
+  color: #9a5a08;
+  background: #fff1d6;
+}
+
+.priority-high {
+  color: #b52e40;
+  background: #ffe7ea;
+}
+
+.category-badge {
+  color: #6058c7;
+  background: #efeeff;
+}
+
+.due-date {
+  color: #626277;
+  background: #f0f0f5;
+}
+
+.task-item.is-overdue {
+  border-color: #e77a84;
+  background: #fff7f7;
+}
+
+.due-date.is-overdue {
+  color: #a91f32;
+  background: #ffe5e8;
 }
 
 .delete-button {
@@ -505,7 +663,31 @@ button {
   }
 
   .add-form {
-    min-height: 60px;
+    gap: 10px;
+    padding: 7px;
+  }
+
+  .form-main-row {
+    min-height: 50px;
+  }
+
+  .form-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .form-option:first-child {
+    grid-column: auto;
+  }
+
+  .form-option {
+    font-size: 11px;
+  }
+
+  .form-option input,
+  .form-option select {
+    height: 40px;
+    padding: 0 10px;
+    font-size: 12px;
   }
 
   .add-button {
@@ -538,6 +720,77 @@ button {
     padding-top: 21px;
     font-size: 11px;
   }
+}
+
+:root[data-theme="dark"] .today-label,
+:root[data-theme="dark"] .app-footer {
+  color: #a9a9bd;
+}
+
+:root[data-theme="dark"] .task-panel {
+  border-color: #343447;
+}
+
+:root[data-theme="dark"] .progress-card {
+  border-color: #34324f;
+  box-shadow: var(--shadow);
+}
+
+:root[data-theme="dark"] .task-item.is-completed .task-text {
+  color: #9999ac;
+}
+
+:root[data-theme="dark"] .task-total,
+:root[data-theme="dark"] .empty-illustration {
+  color: #d3d0ff;
+  background: #34324f;
+}
+
+:root[data-theme="dark"] .task-item.is-overdue {
+  border-color: #a94f5a;
+  background: #35252d;
+}
+
+:root[data-theme="dark"] .task-toggle {
+  border-color: #68687f;
+}
+
+:root[data-theme="dark"] .delete-button:hover {
+  background: #442b36;
+}
+
+:root[data-theme="dark"] .priority-low {
+  color: #8ce2ae;
+  background: #214532;
+}
+
+:root[data-theme="dark"] .priority-medium {
+  color: #ffd27b;
+  background: #4a3920;
+}
+
+:root[data-theme="dark"] .priority-high {
+  color: #ff9aa6;
+  background: #4c2932;
+}
+
+:root[data-theme="dark"] .category-badge {
+  color: #c4bfff;
+  background: #36324f;
+}
+
+:root[data-theme="dark"] .due-date {
+  color: #d1d1e0;
+  background: #3a3a4d;
+}
+
+:root[data-theme="dark"] .due-date.is-overdue {
+  color: #ff9aa6;
+  background: #4c2932;
+}
+
+:root[data-theme="dark"] .add-form input::placeholder {
+  color: #9292a8;
 }
 
 @media (prefers-reduced-motion: reduce) {
