@@ -143,6 +143,45 @@
           <span class="remaining-count" id="remaining-count"></span>
         </div>
 
+        <section class="planner-launch" aria-label="Görev planlama">
+          <button
+            class="planner-button"
+            id="planner-button"
+            type="button"
+            aria-controls="ai-plan-panel"
+            aria-expanded="false"
+          >
+            <span class="planner-button-copy">
+              <span class="planner-button-title">✨ AI ile Planla</span>
+              <span class="planner-button-hint">Görevlerin için yerel bir plan oluştur</span>
+            </span>
+            <span class="planner-button-arrow" aria-hidden="true">→</span>
+          </button>
+        </section>
+
+        <section
+          class="ai-plan-panel"
+          id="ai-plan-panel"
+          aria-labelledby="ai-plan-heading"
+          aria-live="polite"
+          hidden
+        >
+          <div class="plan-heading">
+            <div>
+              <p class="eyebrow">GÖREV ÖNERİLERİ</p>
+              <h2 id="ai-plan-heading">✨ AI Planı</h2>
+            </div>
+            <button class="plan-close-button" id="plan-close-button" type="button">
+              Planı Kapat
+            </button>
+          </div>
+          <div class="plan-summary" id="plan-summary"></div>
+          <p class="plan-empty" id="plan-empty" hidden>
+            Planlanacak tamamlanmamış görevin bulunmuyor.
+          </p>
+          <ol class="plan-task-list" id="plan-task-list"></ol>
+        </section>
+
         <ul class="task-list" id="task-list" aria-live="polite"></ul>
         <div class="empty-state" id="empty-state">
           <span class="empty-illustration" aria-hidden="true">📝</span>

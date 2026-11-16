@@ -28,6 +28,12 @@ const todayLabel = document.querySelector("#today-label");
 const filterButtons = document.querySelectorAll(".filter-button");
 const themeToggle = document.querySelector("#theme-toggle");
 const themeColor = document.querySelector('meta[name="theme-color"]');
+const plannerButton = document.querySelector("#planner-button");
+const planPanel = document.querySelector("#ai-plan-panel");
+const planCloseButton = document.querySelector("#plan-close-button");
+const planSummary = document.querySelector("#plan-summary");
+const planEmpty = document.querySelector("#plan-empty");
+const planTaskList = document.querySelector("#plan-task-list");
 
 let tasks = loadTasks();
 let activeFilter = "all";
@@ -80,6 +86,18 @@ themeToggle.addEventListener("click", () => {
     announce("Tema tercihi bu cihazda kaydedilemedi.");
   }
   applyTheme();
+});
+
+plannerButton.addEventListener("click", () => {
+  renderPlan();
+  planPanel.hidden = false;
+  plannerButton.setAttribute("aria-expanded", "true");
+});
+
+planCloseButton.addEventListener("click", () => {
+  planPanel.hidden = true;
+  plannerButton.setAttribute("aria-expanded", "false");
+  plannerButton.focus();
 });
 
 filterButtons.forEach((button) => {
@@ -177,6 +195,7 @@ function persistAndRender() {
   }
 
   renderTasks();
+  if (!planPanel.hidden) renderPlan();
 
   if (saveError) {
     announce("Görevler bu cihazda kaydedilemedi. Tarayıcı depolama alanını kontrol et.");
@@ -283,7 +302,7 @@ function priorityClass(priority) {
 }
 
 function isOverdue(task) {
-  return Boolean(task.dueDate && !task.completed && task.dueDate < getLocalDateString());
+  return Boolean(task.dueDate && !task.completed && getDaysUntilDue(task.dueDate) < 0);
 }
 
 function getLocalDateString(date = new Date()) {
@@ -291,6 +310,130 @@ function getLocalDateString(date = new Date()) {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+}
+
+function getDaysUntilDue(dueDate) {
+  if (!dueDate) return null;
+
+  const [year, month, day] = dueDate.split("-").map(Number);
+  const parsedDate = new Date(year, month - 1, day);
+  if (getLocalDateString(parsedDate) !== dueDate) return null;
+
+  const today = new Date();
+  const todayUtc = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+  const dueDateUtc = Date.UTC(year, month - 1, day);
+  return Math.round((dueDateUtc - todayUtc) / 86_400_000);
+}
+
+function getPlanningScore(task) {
+  const priorityScore = {
+    Yüksek: 30,
+    Orta: 20,
+    Düşük: 10,
+  }[task.priority] ?? 20;
+  const daysUntilDue = getDaysUntilDue(task.dueDate);
+
+  let dueDateScore = 0;
+  if (daysUntilDue !== null) {
+    if (daysUntilDue < 0) dueDateScore = 50;
+    else if (daysUntilDue === 0) dueDateScore = 40;
+    else if (daysUntilDue === 1) dueDateScore = 30;
+    else if (daysUntilDue <= 3) dueDateScore = 20;
+  }
+
+  return priorityScore + dueDateScore;
+}
+
+function getPlanningRecommendation(task) {
+  const daysUntilDue = getDaysUntilDue(task.dueDate);
+
+  if (daysUntilDue !== null) {
+    if (daysUntilDue < 0) return "Geciktiği için öncelikle ele alınmalı.";
+    if (daysUntilDue === 0) return "Bugün yapılması öneriliyor.";
+    if (daysUntilDue === 1) return "Yarın tamamlanması öneriliyor.";
+    if (daysUntilDue <= 3) return "Bu hafta planlanabilir.";
+    if (task.priority === "Yüksek") return "Önceliği yüksek; takvimine erkenden ekle.";
+    if (task.priority === "Orta") return "Son tarih yaklaşmadan planına ekle.";
+    return "Son tarihe kadar uygun bir zamana planla.";
+  }
+
+  if (task.priority === "Yüksek") return "Önceliği yüksek; bugün için zaman ayır.";
+  if (task.priority === "Orta") return "Uygun bir zaman belirleyip planına ekle.";
+  return "Programında boşluk bulduğunda planla.";
+}
+
+function renderPlan() {
+  const incompleteTasks = tasks
+    .map((task, index) => ({ task, index }))
+    .filter(({ task }) => !task.completed)
+    .map(({ task, index }) => ({
+      task,
+      index,
+      score: getPlanningScore(task),
+    }))
+    .sort((first, second) => second.score - first.score || first.index - second.index);
+  const overdueCount = incompleteTasks.filter(({ task }) => isOverdue(task)).length;
+  const highPriorityCount = incompleteTasks.filter(
+    ({ task }) => task.priority === "Yüksek",
+  ).length;
+
+  planSummary.replaceChildren(
+    createPlanSummaryItem("Tamamlanmamış", incompleteTasks.length),
+    createPlanSummaryItem("Geciken", overdueCount),
+    createPlanSummaryItem("Yüksek öncelik", highPriorityCount),
+  );
+  planTaskList.replaceChildren(...incompleteTasks.map(createPlanTaskElement));
+  planEmpty.hidden = incompleteTasks.length > 0;
+  planTaskList.hidden = incompleteTasks.length === 0;
+}
+
+function createPlanSummaryItem(label, value) {
+  const item = document.createElement("div");
+  item.className = "plan-summary-item";
+
+  const count = document.createElement("strong");
+  count.className = "plan-summary-count";
+  count.textContent = String(value);
+
+  const description = document.createElement("span");
+  description.textContent = label;
+
+  item.append(count, description);
+  return item;
+}
+
+function createPlanTaskElement({ task, score }, index) {
+  const item = document.createElement("li");
+  item.className = "plan-task";
+
+  const rank = document.createElement("span");
+  rank.className = "plan-task-rank";
+  rank.textContent = String(index + 1);
+  rank.setAttribute("aria-label", `Sıra ${index + 1}`);
+
+  const content = document.createElement("div");
+  content.className = "plan-task-content";
+
+  const title = document.createElement("h3");
+  title.className = "plan-task-title";
+  title.textContent = task.title;
+
+  const details = document.createElement("p");
+  details.className = `plan-task-details plan-priority-${priorityClass(task.priority)}`;
+  details.textContent = `${task.priority} • ${task.category}`;
+
+  const recommendation = document.createElement("p");
+  recommendation.className = "plan-task-recommendation";
+  recommendation.textContent = getPlanningRecommendation(task);
+
+  content.append(title, details, recommendation);
+
+  const scoreElement = document.createElement("span");
+  scoreElement.className = "plan-task-score";
+  scoreElement.textContent = `Planlama puanı: ${score}`;
+
+  item.append(rank, content, scoreElement);
+  return item;
 }
 
 function formatDueDate(value) {

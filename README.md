@@ -1,6 +1,6 @@
 # Osman Todo
 
-Türkçe arayüzlü, mobil öncelikli görev uygulaması. Görev ekleyebilir, tamamlayabilir ve silebilir; görevlere son tarih, öncelik ve kategori ekleyebilirsin. Açık/koyu tema tercihin ve görev listen bu cihazın `localStorage` alanında saklanır. Önceki sürümde kaydedilmiş görevler korunur; öncelikleri **Orta**, kategorileri **Kişisel** olarak görüntülenir.
+Türkçe arayüzlü, mobil öncelikli görev uygulaması. Görev ekleyebilir, tamamlayabilir ve silebilir; görevlere son tarih, öncelik ve kategori ekleyebilirsin. **AI ile Planla** özelliği tamamlanmamış görevleri tamamen cihaz üzerinde puanlayıp önerilen sıraya dizer; herhangi bir harici AI servisine bağlanmaz. Açık/koyu tema tercihin ve görev listen bu cihazın `localStorage` alanında saklanır. Önceki sürümlerde kaydedilmiş görevler korunur; eksik öncelik ve kategori bilgileri sırasıyla **Orta** ve **Kişisel** kabul edilir.
 
 ## Çalıştırma
 
