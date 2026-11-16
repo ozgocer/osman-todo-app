@@ -191,8 +191,15 @@ button {
 }
 
 .planner-launch {
-  display: block;
+  display: grid;
+  gap: 10px;
   margin-bottom: 16px;
+}
+
+.planner-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .planner-button {
@@ -222,6 +229,21 @@ button {
   transform: scale(0.99);
 }
 
+.planner-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+  transform: none;
+}
+
+.backend-planner-button {
+  background: linear-gradient(110deg, #498d82, #337267);
+  box-shadow: 0 10px 24px rgb(51 114 103 / 20%);
+}
+
+.backend-planner-button:hover {
+  box-shadow: 0 13px 28px rgb(51 114 103 / 27%);
+}
+
 .planner-button-copy {
   display: grid;
   gap: 4px;
@@ -240,6 +262,70 @@ button {
 .planner-button-arrow {
   font-size: 25px;
   line-height: 1;
+}
+
+.api-base-url-option {
+  display: grid;
+  gap: 5px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.api-base-url-option span span {
+  font-weight: 400;
+}
+
+.api-base-url-option input {
+  width: 100%;
+  min-width: 0;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--control-border);
+  border-radius: 9px;
+  outline: 0;
+  color: var(--ink);
+  background: var(--surface);
+  font: inherit;
+}
+
+.api-base-url-option input:focus {
+  border-color: #aaa5f5;
+  box-shadow: 0 0 0 2px rgb(108 99 232 / 10%);
+}
+
+.backend-plan-panel {
+  margin-bottom: 22px;
+  padding: 18px 16px;
+  border: 1px solid var(--task-border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.backend-plan-panel h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+
+.backend-plan-loading,
+.backend-plan-error,
+.backend-plan-message,
+.backend-plan-recommendation,
+.backend-plan-provider {
+  margin: 9px 0 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.backend-plan-error {
+  color: #b52e40;
+}
+
+.backend-plan-provider {
+  font-size: 11px;
 }
 
 .ai-plan-panel {
@@ -870,6 +956,10 @@ button {
     margin-bottom: 19px;
   }
 
+  .planner-actions {
+    gap: 12px;
+  }
+
   .ai-plan-panel {
     padding: 24px;
     border-radius: 24px;
@@ -1064,6 +1154,12 @@ button {
 
 :root[data-theme="dark"] .plan-task-score {
   color: #c4bfff;
+}
+
+@media (max-width: 480px) {
+  .planner-actions {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

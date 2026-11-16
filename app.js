@@ -1,5 +1,6 @@
 const STORAGE_KEY = "osman-todo-tasks";
 const THEME_STORAGE_KEY = "osman-todo-theme";
+const API_BASE_URL_STORAGE_KEY = "osman-todo-api-base-url";
 const PRIORITIES = ["Düşük", "Orta", "Yüksek"];
 const CATEGORIES = ["İş", "Kişisel", "Eğitim"];
 const CHECK_ICON =
@@ -34,10 +35,22 @@ const planCloseButton = document.querySelector("#plan-close-button");
 const planSummary = document.querySelector("#plan-summary");
 const planEmpty = document.querySelector("#plan-empty");
 const planTaskList = document.querySelector("#plan-task-list");
+const backendPlannerButton = document.querySelector("#backend-planner-button");
+const apiBaseUrlInput = document.querySelector("#api-base-url");
+const backendPlanPanel = document.querySelector("#backend-plan-panel");
+const backendPlanLoading = document.querySelector("#backend-plan-loading");
+const backendPlanError = document.querySelector("#backend-plan-error");
+const backendPlanResult = document.querySelector("#backend-plan-result");
+const backendPlanMessage = document.querySelector("#backend-plan-message");
+const backendPlanRecommendation = document.querySelector(
+  "#backend-plan-recommendation",
+);
+const backendPlanProvider = document.querySelector("#backend-plan-provider");
 
 let tasks = loadTasks();
 let activeFilter = "all";
 let currentTheme = loadTheme();
+loadApiBaseUrl();
 
 todayLabel.textContent = new Intl.DateTimeFormat("tr-TR", {
   weekday: "long",
@@ -99,6 +112,17 @@ planCloseButton.addEventListener("click", () => {
   plannerButton.setAttribute("aria-expanded", "false");
   plannerButton.focus();
 });
+
+apiBaseUrlInput.addEventListener("change", () => {
+  try {
+    localStorage.setItem(API_BASE_URL_STORAGE_KEY, apiBaseUrlInput.value.trim());
+  } catch (error) {
+    console.error("API base URL tercihi kaydedilemedi:", error);
+    announce("API base URL tercihi bu cihazda kaydedilemedi.");
+  }
+});
+
+backendPlannerButton.addEventListener("click", requestBackendPlan);
 
 filterButtons.forEach((button) => {
   button.addEventListener("click", () => {
@@ -167,6 +191,64 @@ function loadTheme() {
   } catch (error) {
     console.error("Tema tercihi yüklenemedi:", error);
     return "light";
+  }
+}
+
+function loadApiBaseUrl() {
+  try {
+    apiBaseUrlInput.value = localStorage.getItem(API_BASE_URL_STORAGE_KEY) ?? "";
+  } catch (error) {
+    console.error("API base URL tercihi yüklenemedi:", error);
+  }
+}
+
+async function requestBackendPlan() {
+  const incompleteTasks = tasks
+    .filter((task) => !task.completed)
+    .map(({ title, priority, category, dueDate }) => ({
+      title,
+      priority,
+      category,
+      dueDate,
+    }));
+  const apiBaseUrl = apiBaseUrlInput.value.trim().replace(/\/+$/, "");
+
+  backendPlanPanel.hidden = false;
+  backendPlanLoading.hidden = false;
+  backendPlanError.hidden = true;
+  backendPlanResult.hidden = true;
+  backendPlannerButton.disabled = true;
+
+  try {
+    const planEndpoint = apiBaseUrl ? `${apiBaseUrl}/api/plan` : "/api/plan";
+    const response = await fetch(planEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tasks: incompleteTasks }),
+    });
+    if (!response.ok) throw new Error(`API yanıtı: ${response.status}`);
+
+    const result = await response.json();
+    if (
+      typeof result.message !== "string" ||
+      typeof result.recommendation !== "string" ||
+      typeof result.provider !== "string"
+    ) {
+      throw new Error("API yanıtı beklenen biçimde değil.");
+    }
+
+    backendPlanMessage.textContent = result.message;
+    backendPlanRecommendation.textContent = result.recommendation;
+    backendPlanProvider.textContent = result.provider;
+    backendPlanResult.hidden = false;
+    announce("AI backend yanıtı alındı.");
+  } catch (error) {
+    console.error("AI backend isteği başarısız:", error);
+    backendPlanError.hidden = false;
+    announce("AI servisine şu anda ulaşılamıyor.");
+  } finally {
+    backendPlanLoading.hidden = true;
+    backendPlannerButton.disabled = false;
   }
 }
 

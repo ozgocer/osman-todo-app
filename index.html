@@ -144,19 +144,70 @@
         </div>
 
         <section class="planner-launch" aria-label="Görev planlama">
-          <button
-            class="planner-button"
-            id="planner-button"
-            type="button"
-            aria-controls="ai-plan-panel"
-            aria-expanded="false"
-          >
-            <span class="planner-button-copy">
-              <span class="planner-button-title">✨ AI ile Planla</span>
-              <span class="planner-button-hint">Görevlerin için yerel bir plan oluştur</span>
-            </span>
-            <span class="planner-button-arrow" aria-hidden="true">→</span>
-          </button>
+          <div class="planner-actions">
+            <button
+              class="planner-button"
+              id="planner-button"
+              type="button"
+              aria-controls="ai-plan-panel"
+              aria-expanded="false"
+            >
+              <span class="planner-button-copy">
+                <span class="planner-button-title">✨ AI ile Planla</span>
+                <span class="planner-button-hint">Görevlerin için yerel bir plan oluştur</span>
+              </span>
+              <span class="planner-button-arrow" aria-hidden="true">→</span>
+            </button>
+            <button
+              class="planner-button backend-planner-button"
+              id="backend-planner-button"
+              type="button"
+              aria-controls="backend-plan-panel"
+            >
+              <span class="planner-button-copy">
+                <span class="planner-button-title">🤖 AI Backend Test</span>
+                <span class="planner-button-hint">Görevlerini backend servisine gönder</span>
+              </span>
+              <span class="planner-button-arrow" aria-hidden="true">→</span>
+            </button>
+          </div>
+          <label class="api-base-url-option" for="api-base-url">
+            <span>API base URL <span>(aynı origin için boş bırak)</span></span>
+            <input
+              id="api-base-url"
+              name="apiBaseUrl"
+              type="url"
+              inputmode="url"
+              placeholder="https://...-3000.app.github.dev"
+              autocomplete="url"
+            />
+          </label>
+        </section>
+
+        <section
+          class="backend-plan-panel"
+          id="backend-plan-panel"
+          aria-labelledby="backend-plan-heading"
+          aria-live="polite"
+          hidden
+        >
+          <h2 id="backend-plan-heading">🤖 AI Backend</h2>
+          <p class="backend-plan-loading" id="backend-plan-loading" hidden>
+            AI düşünüyor...
+          </p>
+          <p class="backend-plan-error" id="backend-plan-error" role="alert" hidden>
+            AI servisine şu anda ulaşılamıyor.
+          </p>
+          <div id="backend-plan-result" hidden>
+            <p class="backend-plan-message" id="backend-plan-message"></p>
+            <p class="backend-plan-recommendation">
+              <strong>Öneri:</strong>
+              <span id="backend-plan-recommendation"></span>
+            </p>
+            <p class="backend-plan-provider">
+              Provider: <span id="backend-plan-provider"></span>
+            </p>
+          </div>
         </section>
 
         <section

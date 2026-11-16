@@ -1,4 +1,4 @@
-const CACHE_NAME = "osman-todo-v3";
+const CACHE_NAME = "osman-todo-v5";
 const APP_SHELL = [
   "./",
   "./index.html",
